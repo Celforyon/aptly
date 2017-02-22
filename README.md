@@ -7,7 +7,7 @@ Required files in `$webdir`:
 * passphrase containing the passphrase (so it is non-interactive)
 
 ### Launch
-`docker run --name aptly -d -v $webdir:/opt/aptly -v $shareddir:/shared celforyon/aptly`
+`docker run --name aptly -d -e GPGKEY=$KEY -v $webdir:/opt/aptly -v $shareddir:/shared celforyon/aptly`
 
 ### Create repository
 `docker exec aptly aptly repo-create $dist`
@@ -28,7 +28,7 @@ To serve your published packages, you need to run a web server on `$webdir/publi
 
 ## Available scripts
 You can make use of these scripts by doing:
-`docker exec aptly *script*`
+`docker exec -it aptly *script*`
 
 ### repo-create
 It allows to create an *aptly* repository and is the same as:
