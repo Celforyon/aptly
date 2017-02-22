@@ -2,7 +2,6 @@
 ## Installation and usage
 ### Preparation
 Required files in `$webdir`:
-* public.key containing your public GPG key
 * private.key containing your private GPG key
 * passphrase containing the passphrase (so it is non-interactive)
 

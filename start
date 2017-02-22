@@ -21,10 +21,7 @@ function publish() {
 	rmdir $(dirname $(dirname $path)) # remove temporary created dir
 }
 
-gpg --import public.key
-gpg --import private.key
-gpg --list-keys
-
+gpg --no-tty --import private.key
 grep -q 'no-tty' ~/.gnupg/gpg.conf||echo>> ~/.gnupg/gpg.conf 'no-tty'
 
 inotifywait -rme CLOSE_WRITE /shared|while read line; do publish $line; done
