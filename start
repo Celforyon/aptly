@@ -1,0 +1,28 @@
+#!/bin/bash
+
+function publish() {
+	path=$(echo $line|sed -r 's/([^ ]*) [^ ]+ (.*)/\1\2/')
+	filename=$(basename $path)
+	ext="${filename##*.}"
+	if [ "$ext" = "deb" ]; then
+		dist=$(basename $(dirname $path))
+		if [ ! -f debs/$dist/$filename ]; then
+			sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
+
+			aptly repo add $dist $path
+			aptly snapshot create $sname from repo $dist
+			aptly publish snapshot -passphrase-file=passphrase $sname
+			[ ! -d debs/$dist ] && mkdir -p debs/$dist
+			cp -a $path debs/$dist/$filename
+		fi
+	fi
+	rm $path													# remove file
+	rmdir $(dirname $path)						# remove supposedly dist
+	rmdir $(dirname $(dirname $path)) # remove temporary created dir
+}
+
+gpg --import public.key
+gpg --import private.key
+gpg --list-keys
+
+inotifywait -rme CLOSE_WRITE /shared|while read line; do publish $line; done

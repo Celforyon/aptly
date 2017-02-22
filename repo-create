@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+	echo>&2 Usage: $0 dist
+	exit 1
+fi
+dist=$1
+aptly repo create -distribution=$dist -component=main $dist
