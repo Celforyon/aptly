@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM debian:stretch
 MAINTAINER Alexis Pereda <alexis@pereda.fr>
 
 RUN apt update
