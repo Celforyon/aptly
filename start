@@ -11,7 +11,7 @@ function publish() {
 
 			aptly repo add $dist $path
 			aptly snapshot create $sname from repo $dist
-			aptly publish snapshot -passphrase-file=passphrase $sname
+			aptly publish -passphrase-file=passphrase snapshot $sname
 			[ ! -d debs/$dist ] && mkdir -p debs/$dist
 			cp -a $path debs/$dist/$filename
 		fi
