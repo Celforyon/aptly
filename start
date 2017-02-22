@@ -25,4 +25,6 @@ gpg --import public.key
 gpg --import private.key
 gpg --list-keys
 
+grep -q 'no-tty' ~/.gnupg/gpg.conf||echo>> ~/.gnupg/gpg.conf 'no-tty'
+
 inotifywait -rme CLOSE_WRITE /shared|while read line; do publish $line; done
