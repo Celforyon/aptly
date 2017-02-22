@@ -7,7 +7,9 @@ RUN rm -rf /var/lib/apt/lists/*
 
 COPY aptly.conf /etc/aptly.conf
 COPY start /usr/local/bin/
+
 COPY repo-create /usr/local/bin/
+COPY purge-aptly /usr/local/bin/
 
 WORKDIR /opt/aptly
 

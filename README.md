@@ -1,17 +1,18 @@
-# Usage
-## Preparation
+# Documentation
+## Installation and usage
+### Preparation
 Required files in `$webdir`:
 * public.key containing your public GPG key
 * private.key containing your private GPG key
 * passphrase containing the passphrase (so it is non-interactive)
 
-## Launch
+### Launch
 `docker run --name aptly -d -v $webdir:/opt/aptly -v $shareddir:/shared celforyon/aptly`
 
-## Create repository
+### Create repository
 `docker exec aptly aptly repo-create $dist`
 
-## Publishing
+### Publishing
 ```bash
 tmp=$(mktemp -dp $shareddir)
 mkdir $tmp/$dist
@@ -22,5 +23,17 @@ The debfile and two directories will be removed
 The subdirectory `$dist` must be a valid repository name
 The temporary directory is required but you can name it otherwise
 
-## Serving
+### Serving
 To serve your published packages, you need to run a web server on `$webdir/public`
+
+## Available scripts
+You can make use of these scripts by doing:
+`docker exec aptly *script*`
+
+### repo-create
+It allows to create an *aptly* repository and is the same as:
+`aptly repo create -distribution=$dist -component=main $dist`
+
+### purge-aptly
+**Dangerous command**
+It deletes all *aptly* generated data, plus the `debs` archive of deb files
