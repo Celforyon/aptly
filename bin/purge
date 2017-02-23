@@ -1,3 +1,4 @@
 #!/bin/bash
-mv debs debs.backup.$(date '+%Y%m%d%s')
+[ ! -d backup ] && mkdir backup
+mv debs backup/debs.$(date '+%Y%m%d%s')
 rm -rf db pool public/dists public/pool
