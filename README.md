@@ -1,4 +1,10 @@
 # Documentation
+## Environment variables
+| Name             | Possible values | Default | Effect                                              |
+| ---------------- | --------------- | ------- | --------------------------------------------------- |
+| AUTO_CREATE_REPO | true/false      | false   | If true, will automatically create new repositories |
+| PASSPHRASE       | any             | empty   | If set, create the *passphrase* file                |
+
 ## Installation and usage
 ### Preparation
 Required files in `$webdir`:

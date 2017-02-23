@@ -1,27 +1,58 @@
 #!/bin/bash
 
+function repocheck() {
+	dist=$1
+	if aptly repo list -raw|grep -qE "^$dist$"; then
+		if "$AUTO_CREATE_REPO" = "true"; then
+			repo-create>&2 2>/dev/null $dist
+		else
+			echo>&2 "[aptly] error: trying to add package to non-existing repo $dist"
+			echo err
+		fi
+	fi
+}
+
 function publish() {
 	path=$(echo $line|sed -r 's/([^ ]*) [^ ]+ (.*)/\1\2/')
 	filename=$(basename $path)
 	ext="${filename##*.}"
 	if [ "$ext" = "deb" ]; then
 		dist=$(basename $(dirname $path))
-		if [ ! -f debs/$dist/$filename ]; then
-			sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
+		state=$(repocheck $dist)
+		if [ -z "$state" ]; then
+			if [ ! -f debs/$dist/$filename ]; then
+				sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
 
-			aptly repo add $dist $path
-			aptly snapshot create $sname from repo $dist
-			aptly publish -gpg-key=$GPGKEY -passphrase-file=passphrase snapshot $sname
-			[ ! -d debs/$dist ] && mkdir -p debs/$dist
-			cp -a $path debs/$dist/$filename
+				aptly repo add $dist $path
+				aptly snapshot create $sname from repo $dist
+				aptly publish -passphrase-file=passphrase snapshot $sname
+				[ ! -d debs/$dist ] && mkdir -p debs/$dist
+				cp -a $path debs/$dist/$filename
+			fi
 		fi
+	else
+		echo>&2 "[aptly] error: ignoring file $filename (bad extension: $ext)"
 	fi
 	rm $path													# remove file
 	rmdir $(dirname $path)						# remove supposedly dist
 	rmdir $(dirname $(dirname $path)) # remove temporary created dir
 }
 
+if [ ! -r private.key ]; then
+	echo>&2 "[aptly] fatal error: no private.key file"
+	exit 1
+fi
+
 gpg --no-tty --import private.key
 grep -q 'no-tty' ~/.gnupg/gpg.conf||echo>> ~/.gnupg/gpg.conf 'no-tty'
+
+[ -n "$PASSPHRASE" ] && echo>passphrase "$PASSPHRASE"
+if [ ! -r passphrase ]; then
+	echo>&2 "[aptly] fatal error: no passphrase"
+	exit 2
+fi
+
+chown root: passphrase
+chmod 000 passphrase
 
 inotifywait -rme CLOSE_WRITE /shared|while read line; do publish $line; done
