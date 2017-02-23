@@ -3,8 +3,8 @@ if [ ! -d debs ]; then
 	echo>&2 '[aptly] error: no debs directory. Nothing to be done'
 	exit 1
 fi
-ls -1|while read dist; do
-	if [ -d $dist ]; then
+ls -1 debs|while read dist; do
+	if [ -d debs/$dist ]; then
 		sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
 
 		repo-create $dist
