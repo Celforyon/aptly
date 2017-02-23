@@ -2,7 +2,7 @@
 
 function repocheck() {
 	dist=$1
-	if aptly repo list -raw|grep -qvE "^$dist$"; then
+	if [ -z $(aptly repo list -raw|grep -E "^$dist$") ]; then
 		if [ "$AUTO_CREATE_REPO" = "true" ]; then
 			repo-create>&2 2>/dev/null $dist
 		else
