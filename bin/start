@@ -3,7 +3,7 @@
 function repocheck() {
 	dist=$1
 	if aptly repo list -raw|grep -qvE "^$dist$"; then
-		if "$AUTO_CREATE_REPO" = "true"; then
+		if [ "$AUTO_CREATE_REPO" = "true" ]; then
 			repo-create>&2 2>/dev/null $dist
 		else
 			echo>&2 "[aptly] error: trying to add package to non-existing repo $dist"
