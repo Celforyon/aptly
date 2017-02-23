@@ -1,0 +1,17 @@
+#!/bin/bash
+if [ ! -d debs ]; then
+	echo>&2 '[aptly] error: no debs directory. Nothing to be done'
+	exit 1
+fi
+ls -1|while read dist; do
+	if [ -d $dist ]; then
+		sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
+
+		repo-create $dist
+		aptly repo add $dist debs/$dist
+		aptly snapshot create $sname from repo $dist
+		publish snapshot $sname
+	else
+		echo>&2 '[aptly] error: $dist is not a directory'
+	fi
+done

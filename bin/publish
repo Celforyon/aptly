@@ -1,0 +1,2 @@
+#!/bin/bash
+aptly publish -passphrase-file=passphrase $@

@@ -1,6 +1,0 @@
-#!/bin/bash
-echo -n "All data will be definitively lost. Continue? (yes/NO) "
-read answer
-
-[ "$answer" != "yes" ] && exit 1
-rm -rf db debs pool public/dists public/pool

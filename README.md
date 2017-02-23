@@ -33,12 +33,18 @@ To serve your published packages, you need to run a web server on `$webdir/publi
 
 ## Available scripts
 You can make use of these scripts by doing:
-`docker exec -it aptly *script*`
+`docker exec aptly *script*`
+
+### init
+It loads all repo and packages from the `debs` directory
 
 ### repo-create
 It allows to create an *aptly* repository and is the same as:
 `aptly repo create -distribution=$dist -component=main $dist`
 
-### purge-aptly
-**Dangerous command**
-It deletes all *aptly* generated data, plus the `debs` archive of deb files
+### publish
+Simply a helper script to call `aptly publish -passphrase-file=passphrase $@`
+
+### purge
+It deletes all *aptly* generated data.
+Also, the `debs` archive of added packages is backuped in `backup/debs.$(date '+%Y%m%d%s')`
