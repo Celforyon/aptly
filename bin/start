@@ -4,6 +4,10 @@ function f_greprepo() {
 	aptly repo list -raw|grep -E "^$1$"
 }
 
+function f_greppublished() {
+	aptly publish list -raw|cut -d' ' -f2|grep -E "^$1$"
+}
+
 function f_repocheck() {
 	dist=$1
 	if [ -z "$(f_greprepo $dist)" ]; then
@@ -17,6 +21,17 @@ function f_repocheck() {
 }
 
 function f_publish() {
+	dist=$1
+	sname=$2
+
+	if [ -z "$(f_greppublished $dist)" ]; then
+		publish snapshot $sname
+	else
+		publish switch $dist $sname
+	fi
+}
+
+function f_process() {
 	path=$1
 	filename=$(basename $path)
 	ext="${filename##*.}"
@@ -29,7 +44,7 @@ function f_publish() {
 					sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
 
 					aptly snapshot create $sname from repo $dist
-					publish snapshot $sname
+					f_publish $dist $sname
 					[ ! -d debs/$dist ] && mkdir -p debs/$dist
 					cp $path debs/$dist/$filename
 				fi
@@ -62,4 +77,4 @@ fi
 chown root: passphrase
 chmod 000 passphrase
 
-inotifywait -rme CLOSE_WRITE --format '%w%f' /shared|while read line; do f_publish $line; done
+inotifywait -rme CLOSE_WRITE --format '%w%f' /shared|while read line; do f_process $line; done
