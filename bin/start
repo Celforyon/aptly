@@ -21,13 +21,17 @@ function publish() {
 		state=$(repocheck $dist)
 		if [ -z "$state" ]; then
 			if [ ! -f debs/$dist/$filename ]; then
-				sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
+				tmp=$(mktemp -d)
+				cp $path $tmp
+				if aptly repo add $dist $tmp/$filename; then
+					sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
 
-				aptly repo add $dist $path
-				aptly snapshot create $sname from repo $dist
-				publish snapshot $sname
-				[ ! -d debs/$dist ] && mkdir -p debs/$dist
-				cp -a $path debs/$dist/$filename
+					aptly snapshot create $sname from repo $dist
+					publish snapshot $sname
+					[ ! -d debs/$dist ] && mkdir -p debs/$dist
+					mv $tmp/$filename debs/$dist/$filename
+				fi
+				rm -r $tmp
 			else
 				echo>&2 "[aptly] warning: this package already exists"
 			fi
@@ -35,7 +39,7 @@ function publish() {
 	else
 		echo>&2 "[aptly] error: ignoring file $filename (bad extension: $ext)"
 	fi
-	rm $path													# remove file
+	rm -f $path												# remove file
 	rmdir $(dirname $path)						# remove supposedly dist
 	rmdir $(dirname $(dirname $path)) # remove temporary created dir
 }
