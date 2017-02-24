@@ -1,8 +1,12 @@
 #!/bin/bash
 
-function repocheck() {
+function f_greprepo() {
+	aptly repo list -raw|grep -E "^$1$"
+}
+
+function f_repocheck() {
 	dist=$1
-	if [ -z $(aptly repo list -raw|grep -E "^$dist$") ]; then
+	if [ -z "$(f_greprepo $dist)" ]; then
 		if [ "$AUTO_CREATE_REPO" = "true" ]; then
 			repo-create>&2 2>/dev/null $dist
 		else
@@ -12,26 +16,23 @@ function repocheck() {
 	fi
 }
 
-function publish() {
-	path=$(echo $line|sed -r 's/([^ ]*) [^ ]+ (.*)/\1\2/')
+function f_publish() {
+	path=$1
 	filename=$(basename $path)
 	ext="${filename##*.}"
 	if [ "$ext" = "deb" ]; then
 		dist=$(basename $(dirname $path))
-		state=$(repocheck $dist)
+		state=$(f_repocheck $dist)
 		if [ -z "$state" ]; then
 			if [ ! -f debs/$dist/$filename ]; then
-				tmp=$(mktemp -d)
-				cp $path $tmp
-				if aptly repo add $dist $tmp/$filename; then
+				if aptly repo add $dist $path; then
 					sname=$dist-$(date '+%Y%m%d_%s')-$RANDOM
 
 					aptly snapshot create $sname from repo $dist
 					publish snapshot $sname
 					[ ! -d debs/$dist ] && mkdir -p debs/$dist
-					mv $tmp/$filename debs/$dist/$filename
+					cp $path debs/$dist/$filename
 				fi
-				rm -r $tmp
 			else
 				echo>&2 "[aptly] warning: this package already exists"
 			fi
@@ -61,4 +62,4 @@ fi
 chown root: passphrase
 chmod 000 passphrase
 
-inotifywait -rme CLOSE_WRITE /shared|while read line; do publish $line; done
+inotifywait -rme CLOSE_WRITE --format '%w%f' /shared|while read line; do f_publish $line; done
