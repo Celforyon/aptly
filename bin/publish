@@ -7,4 +7,4 @@ log() {
 	echo>>$logfile "$ts $@"
 }
 
-log "$(aptly publish -passphrase-file=passphrase $@)"
+log "$(aptly 2>&1 publish -passphrase-file=passphrase $@)"
