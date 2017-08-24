@@ -1,6 +1,15 @@
 #!/bin/bash
+
+logfile=/var/log/docker-aptly.log
+
+log() {
+	ts=$(date "+[%Y:%m:%d %H:%M:%S]")
+	echo>>$logfile "$ts $@"
+}
+
 if [ ! -d debs ]; then
 	echo>&2 '[aptly] error: no debs directory. Nothing to be done'
+	log 'error: no debs directory. Nothing to be done'
 	exit 1
 fi
 ls -1 debs|while read dist; do
@@ -12,6 +21,7 @@ ls -1 debs|while read dist; do
 		aptly snapshot create $sname from repo $dist
 		publish snapshot $sname
 	else
-		echo>&2 '[aptly] error: $dist is not a directory'
+		echo>&2 "[aptly] error: $dist is not a directory"
+		log "error: $dist is not a directory"
 	fi
 done

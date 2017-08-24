@@ -1,4 +1,14 @@
 #!/bin/bash
+
+logfile=/var/log/docker-aptly.log
+
+log() {
+	ts=$(date "+[%Y:%m:%d %H:%M:%S]")
+	echo>>$logfile "$ts $@"
+}
+
 [ ! -d backup ] && mkdir backup
 mv debs backup/debs.$(date '+%Y%m%d%s')
 rm -rf db pool public/dists public/pool
+
+log 'info: purged'

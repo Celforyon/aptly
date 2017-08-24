@@ -1,2 +1,10 @@
 #!/bin/bash
-aptly publish -passphrase-file=passphrase $@
+
+logfile=/var/log/docker-aptly.log
+
+log() {
+	ts=$(date "+[%Y:%m:%d %H:%M:%S]")
+	echo>>$logfile "$ts $@"
+}
+
+log "$(aptly publish -passphrase-file=passphrase $@)"
