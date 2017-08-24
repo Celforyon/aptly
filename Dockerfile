@@ -7,7 +7,7 @@ RUN echo>>/etc/apt/preferences 'Pin: release a=testing'
 RUN echo>>/etc/apt/preferences 'Pin-Priority: 100'
 
 RUN apt update
-RUN apt install -y inotify-tools gnupg
+RUN apt install -y inotify-tools gnupg=1.4.18-7+deb8u3
 RUN apt install -y -tstretch aptly
 RUN rm -rf /var/lib/apt/lists/*
 
