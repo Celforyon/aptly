@@ -1,5 +1,12 @@
 #!/bin/bash
 
+logfile=/var/log/docker-aptly.log
+
+log() {
+	ts=$(date "+[%Y:%m:%d %H:%M:%S]")
+	echo>>$logfile "$ts $@"
+}
+
 function f_greprepo() {
 	aptly repo list -raw|grep -E "^$1$"
 }
@@ -15,6 +22,7 @@ function f_repocheck() {
 			repo-create>&2 2>/dev/null $dist
 		else
 			echo>&2 "[aptly] error: trying to add package to non-existing repo $dist"
+			log "error: trying to add package to non-existing repo $dist"
 			echo err
 		fi
 	fi
@@ -47,13 +55,16 @@ function f_process() {
 					f_publish $dist $sname
 					[ ! -d debs/$dist ] && mkdir -p debs/$dist
 					cp $path debs/$dist/$filename
+					log "info: published debs/$dist/$filename"
 				fi
 			else
 				echo>&2 "[aptly] warning: this package already exists"
+				log "warning: this package already exists (debs/$dist/$filename)"
 			fi
 		fi
 	else
 		echo>&2 "[aptly] error: ignoring file $filename (bad extension: $ext)"
+		log "error: ignoring file $filename (bad extension: $ext)"
 	fi
 	rm -f $path												# remove file
 	rmdir $(dirname $path)						# remove supposedly dist
@@ -62,6 +73,7 @@ function f_process() {
 
 if [ ! -r private.key ]; then
 	echo>&2 "[aptly] fatal error: no private.key file"
+	log "fatal error: no private.key file"
 	exit 1
 fi
 
@@ -71,10 +83,14 @@ grep -q 'no-tty' ~/.gnupg/gpg.conf||echo>> ~/.gnupg/gpg.conf 'no-tty'
 [ -n "$PASSPHRASE" ] && echo>passphrase "$PASSPHRASE"
 if [ ! -r passphrase ]; then
 	echo>&2 "[aptly] fatal error: no passphrase"
+	log "fatal error: no passphrase"
 	exit 2
 fi
 
 chown root: passphrase
 chmod 000 passphrase
 
-inotifywait -rme CLOSE_WRITE --format '%w%f' /shared|while read line; do f_process $line; done
+inotifywait -rme CLOSE_WRITE --format '%w%f' /shared|while read line; do
+	log "info: CLOSE_WRITE $line"
+	f_process $line
+done
