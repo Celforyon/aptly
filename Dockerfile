@@ -8,9 +8,9 @@ LABEL description="Debian package publisher (using aptly)"
 RUN echo >/etc/apt/sources.list.d/stretch.list 'deb http://httpredir.debian.org/debian stretch main'
 COPY etc/apt/preferences /etc/apt/preferences
 
-RUN apt update \
-	&& apt install --no-install-recommends --no-install-suggests -y inotify-tools gnupg=1.4.18-7+deb8u3 \
-	&& apt install --no-install-recommends --no-install-suggests -y -tstretch aptly \
+RUN apt-get update \
+	&& apt-get install --no-install-recommends --no-install-suggests -y inotify-tools gnupg=1.4.18-7+deb8u3 \
+	&& apt-get install --no-install-recommends --no-install-suggests -y -tstretch aptly \
 	&& rm -rf /var/lib/apt/lists/*
 
 COPY etc/aptly.conf /etc/aptly.conf
