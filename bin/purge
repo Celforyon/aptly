@@ -1,11 +1,6 @@
 #!/bin/bash
 
-logfile=/var/log/docker-aptly.log
-
-log() {
-	ts=$(date "+[%Y:%m:%d %H:%M:%S]")
-	echo>>$logfile "$ts $@"
-}
+. /usr/local/bin/common
 
 [ ! -d backup ] && mkdir backup
 mv debs backup/debs.$(date '+%Y%m%d%s')

@@ -1,10 +1,21 @@
 #!/bin/bash
 
-logfile=/var/log/docker-aptly.log
+. /usr/local/bin/common
 
-log() {
-	ts=$(date "+[%Y:%m:%d %H:%M:%S]")
-	echo>>$logfile "$ts $@"
-}
+cmd=$1
+shift
 
-log "$(aptly 2>&1 publish -passphrase-file=passphrase $@)"
+if [ "${cmd}" = "list" ]; then
+	aptly_do publish list $@
+elif [ "${cmd}" = "snapshot" ]; then
+	if aptly_do publish snapshot -passphrase-file=passphrase $@; then
+		log "snapshot published: $@"
+	fi
+elif [ "${cmd}" = "switch" ]; then
+	if aptly_do publish switch -passphrase-file=passphrase $@; then
+		log "updated repository: $@"
+	fi
+else
+	log "bad command '${cmd}'"
+	log "Usage: $0 list|snapshot|switch"
+fi

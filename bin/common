@@ -1,0 +1,14 @@
+#!/bin/bash
+
+logfile=/var/log/docker-aptly.log
+
+log() {
+	ts=$(date "+[%Y:%m:%d %H:%M:%S]")
+	echo>>"${logfile}" "${ts} $@"
+	echo>&2 "[aptly]${ts} $@"
+}
+
+aptly_do() {
+	/usr/bin/aptly $@
+	return $?
+}

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+. /usr/local/bin/common
+
+cmd=$1
+shift
+
+if [ "${cmd}" = "add" ]; then
+	dist=$1
+	pkg=$2
+
+	if aptly_do repo add "${dist}" "${pkg}"; then
+		log "add ${pkg} to ${dist}"
+	fi
+elif [ "${cmd}" = "create" ]; then
+	dist=$1
+	if aptly_do repo create -distribution="${dist}" -component=main "${dist}"; then
+		log "repository created: $dist"
+	fi
+elif [ "${cmd}" = "list" ]; then
+	aptly_do repo list $@
+else
+	log "bad command '${cmd}'"
+	log "Usage: $0 add|create|list"
+fi
